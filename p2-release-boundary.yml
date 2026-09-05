@@ -1,0 +1,22 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: GitHubRelease@1
+  displayName: Attempt release outside App installation scope
+  inputs:
+    gitHubConnection: github.com_msrc-odgrso-test
+    repositoryName: msrc-odgrso-test/ado-gh-private-scope-20260905
+    action: create
+    target: main
+    tagSource: userSpecifiedTag
+    tag: p2-release-boundary-20260905
+    title: P2 release boundary test
+    releaseNotesSource: inline
+    releaseNotesInline: controlled test
+    addChangeLog: false
+    isDraft: true
+    isPreRelease: true
