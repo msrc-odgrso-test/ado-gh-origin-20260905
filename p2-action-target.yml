@@ -1,0 +1,13 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- bash: |
+    set -euo pipefail
+    printf 'P2_ACTION_BUILD_ID=%s\n' "$(Build.BuildId)"
+    printf 'P2_ACTION_SOURCE_BRANCH=%s\n' "$(Build.SourceBranch)"
+    printf 'P2_ACTION_SOURCE_VERSION=%s\n' "$(Build.SourceVersion)"
+  displayName: Record action-selected source
