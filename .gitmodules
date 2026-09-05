@@ -1,0 +1,3 @@
+[submodule "canary-submodule"]
+    path = canary-submodule
+    url = https://msrc-ado-canary-170223.azurewebsites.net/api/submodule?attempt=2
