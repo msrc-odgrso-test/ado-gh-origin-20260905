@@ -26,7 +26,7 @@ stages:
                     printf 'source_version=%s\n' "$(Build.SourceVersion)"
                   displayName: Record immutable run identity
                 - task: AzureCLI@2
-                  displayName: Write fixed release canary
+                  displayName: Attacker YAML marker 20260905130650
                   inputs:
                     azureSubscription: SC-SelfApproval-WIF-20260905
                     scriptType: bash
@@ -35,7 +35,7 @@ stages:
                       set -euo pipefail
                       resource_id="/subscriptions/$(az account show --query id --output tsv)/resourceGroups/rg-msrc-gh-approval-20260905"
                       canary="boards-release-build-$(Build.BuildId)-$(Build.SourceVersion)"
-                      az tag update --resource-id "$resource_id" --operation Merge --tags boards_release_pipeline_canary="$canary" --output none
-                      observed="$(az tag list --resource-id "$resource_id" --query 'properties.tags.boards_release_pipeline_canary' --output tsv)"
+                      az tag update --resource-id "$resource_id" --operation Merge --tags boards_attacker_yaml_canary_20260905130650="$canary" --output none
+                      observed="$(az tag list --resource-id "$resource_id" --query 'properties.tags.boards_attacker_yaml_canary_20260905130650' --output tsv)"
                       test "$observed" = "$canary"
-                      printf 'boards_release_pipeline_canary=%s\n' "$observed"
+                      printf 'boards_attacker_yaml_canary_20260905130650=%s\n' "$observed"
